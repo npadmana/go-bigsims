@@ -6,8 +6,10 @@ Nikhil Padmanabhan, Yale
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os/exec"
 	"path"
@@ -35,12 +37,23 @@ func main() {
 	}
 
 	fmt.Println("FoF SQLite loader")
-	fmt.Printf("Input file %s ---> Output DB %s", fofName, dbName)
+	fmt.Printf("Input file %s ---> Output DB %s\n", fofName, dbName)
 
 	cmd := exec.Command(path.Join(genericPath, "GenericIOPrint"), fofName)
 	err = cmd.Start()
 	if err != nil {
 		log.Fatal(err)
+	}
+	outpipe, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fbuf := bufio.NewReader(outpipe)
+	for err != nil {
+		str, err := fbuf.ReadString('\n')
+		if (err != nil) && (err != io.EOF) {
+			fmt.Println(str)
+		}
 	}
 	err = cmd.Wait()
 	if err != nil {
