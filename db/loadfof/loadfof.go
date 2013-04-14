@@ -9,8 +9,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io"
+	//"io"
 	"log"
+	//"os"
 	"os/exec"
 	"path"
 )
@@ -36,27 +37,27 @@ func main() {
 		log.Fatal("Specify the db name")
 	}
 
+	// Information
 	fmt.Println("FoF SQLite loader")
 	fmt.Printf("Input file %s ---> Output DB %s\n", fofName, dbName)
 
+	// Start reading the file
 	cmd := exec.Command(path.Join(genericPath, "GenericIOPrint"), fofName)
 	outpipe, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = cmd.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
 	fbuf := bufio.NewReader(outpipe)
-	for err != nil {
-		str, err := fbuf.ReadString('\n')
-		if (err != nil) && (err != io.EOF) {
-			fmt.Println(str)
-		}
-	}
-	err = cmd.Wait()
 	if err != nil {
+		log.Fatal(err)
+	}
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+	err = nil
+	var str string
+	for err == nil {
+		str, err = fbuf.ReadString('\n')
+		fmt.Print(str)
+	}
+	if err := cmd.Wait(); err != nil {
 		log.Fatal(err)
 	}
 }
