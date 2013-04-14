@@ -40,11 +40,11 @@ func main() {
 	fmt.Printf("Input file %s ---> Output DB %s\n", fofName, dbName)
 
 	cmd := exec.Command(path.Join(genericPath, "GenericIOPrint"), fofName)
-	err = cmd.Start()
+	outpipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
 	}
-	outpipe, err := cmd.StdoutPipe()
+	err = cmd.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
