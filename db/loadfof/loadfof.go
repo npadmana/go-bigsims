@@ -7,9 +7,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
-	//"io"
+	"io"
 	"log"
 	//"os"
 	"os/exec"
@@ -51,11 +52,36 @@ func main() {
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
+
+	// Loop over the lines, reading from the file
+	var mass, xcen, ycen, zcen, xmean, ymean, zmean, vx, vy, vz, vdisp float64
+	var hcount, htag int64
 	err = nil
-	var str string
+	var barr []byte
+	commentprefix := []byte("#")
 	for err == nil {
-		str, err = fbuf.ReadString('\n')
-		fmt.Print(str)
+		barr, err = fbuf.ReadBytes('\n')
+
+		// Handle errors
+		if err == io.EOF {
+			continue
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// See if this is a comment line
+		if bytes.HasPrefix(bytes.TrimSpace(barr), commentprefix) {
+			continue
+		}
+
+		breader := bytes.NewBuffer(barr)
+		fmt.Fscanf(breader, "%d %d", &hcount, &htag)
+		fmt.Fscanf(breader, "%f %f %f %f", &mass, &xcen, &ycen, &zcen)
+		fmt.Fscanf(breader, "%f %f %f", &xmean, &ymean, &zmean)
+		fmt.Fscanf(breader, "%f %f %f %f", &vx, &vy, &vz, &vdisp)
+
+		fmt.Println(hcount, htag, mass, Pxcen, ycen, zcen, vx, vy, vz, vdisp)
 	}
 	if err := cmd.Wait(); err != nil {
 		log.Fatal(err)
