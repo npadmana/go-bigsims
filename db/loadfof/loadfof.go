@@ -15,6 +15,7 @@ import (
 
 func main() {
 	var genericPath, fofName string
+	var nreaders int
 	var help bool
 	var err error
 
@@ -22,6 +23,7 @@ func main() {
 	flag.BoolVar(&help, "help", false, "help")
 	flag.StringVar(&genericPath, "gio", "", "path to genericIOPrint")
 	flag.StringVar(&fofName, "fof", "", "FoF filename")
+	flag.IntVar(&nreaders, "nreaders", 1, "Number of readers")
 	flag.Parse()
 	if help {
 		flag.Usage()
@@ -36,7 +38,7 @@ func main() {
 	// Read the file
 	gp := gioprint.NewGIOPrinter(genericPath)
 	halo := new(db.Halos)
-	if err = gp.Exec(fofName, halo); err != nil {
+	if err = halo.ReadFile(gp, fofName, nreaders); err != nil {
 		log.Fatal(err)
 	}
 

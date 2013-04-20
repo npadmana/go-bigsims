@@ -8,9 +8,11 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"os/exec"
 	"path"
 	"strconv"
+	"time"
 )
 
 type GIOPrinter struct {
@@ -103,7 +105,7 @@ func parsehdr(barr []byte, fn string) (int, error) {
 }
 
 /* Read the file */
-func (gp *GIOPrinter) Exec(fn string, scanner GIOScanner) error {
+func (gp *GIOPrinter) Exec(fn string, scanner GIOScanner, verbose bool) error {
 	// Start reading the file
 	cmd := exec.Command(gp.cmdname, fn)
 	outpipe, err := cmd.StdoutPipe()
@@ -128,8 +130,11 @@ func (gp *GIOPrinter) Exec(fn string, scanner GIOScanner) error {
 	}
 	// Call AllocRanks
 	scanner.AllocRanks(nrank)
+	if verbose {
+		fmt.Printf("Expecting %d ranks...\n", nrank)
+	}
 	var nobj int
-
+	tstart := time.Now()
 	for irank := 0; irank < nrank; irank++ {
 
 		// Find the rank header
@@ -164,6 +169,11 @@ func (gp *GIOPrinter) Exec(fn string, scanner GIOScanner) error {
 			if err = scanner.Read(irank, iobj, barr); err != nil {
 				return err
 			}
+		}
+
+		// Verbosity
+		if verbose && ((irank % 1000) == 0) {
+			fmt.Printf("%d rank just completed, elapsed time is %v .... \n", irank, time.Since(tstart))
 		}
 	}
 
