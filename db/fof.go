@@ -1,3 +1,4 @@
+// Package db collects all the relevant IO routines in one place
 package db
 
 import (
@@ -8,8 +9,7 @@ import (
 	"sync"
 )
 
-/* Define the FoF structure
- */
+// Define the FoF structure
 type Halo struct {
 	Tag, Count          int64
 	Mass                float64

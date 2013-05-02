@@ -1,7 +1,6 @@
-/* A set of utility wrappers for the GenericIOPrint utility 
+// Nikhil Padmanabhan, Yale
 
-Nikhil Padmanabhan, Yale
-*/
+//Package gioprint set of utility wrappers for the GenericIOPrint utility 
 package gioprint
 
 import (
